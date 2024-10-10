@@ -11,34 +11,17 @@ def extract_text_from_pdf(file):
     return text
 
 
+def extract_title(file):
+    metadata = extract_metadata(file)
+    return metadata['/Title']
 
 
-def extract_title(text):
-    # Patrón 1: Después de "Tesis:" y permite comillas alrededor del título
-    match_1 = re.search(r'Tesis:\s*["\']?([\s\S]*?)(?=\n\s*\n|$)["\']?(?:\s+\d{4})?', text, re.IGNORECASE)
-
-    # Patrón 2: Después de "Tesis" y permite comillas alrededor del título
-    match_2 = re.search(r'Tesis\s*["\']?([\s\S]*?)(?=\n\s*\n|$)["\']?(?:\s+\d{4})?', text, re.IGNORECASE)
-    
-    # Patrón 3: Después de "TRABAJO DE INVESTIGACIÓN" y permite comillas alrededor del título
-    match_3 = re.search(r'TRABAJO DE INVESTIGACIÓN\s*["\']?([\s\S]*?)(?=\n\s*\n|$)["\']?(?:\s+\d{4})?', text, re.IGNORECASE)
-    
-    # Patrón 4: Antes de "Tesis para obtener el" y permite comillas alrededor del título
-    match_4 = re.search(r'["\']?([\s\S]*?)(?=\s*Tesis para obtener el)["\']?(?:\s+\d{4})?', text, re.IGNORECASE)
-    
-    # Determinar cuál coincidencia utilizar
-    if match_1:
-        title = match_1.group(1).strip()
-    elif match_2:
-        title = match_2.group(1).strip()
-    elif match_3:
-        title = match_3.group(1).strip()
-    elif match_4:
-        title = match_4.group(1).strip()
-    else:
-        title = "Título no encontrado"
-    
-    return title
+def extract_keywords(file):
+    metadata = extract_metadata(file)
+    keywords = metadata.get('/Keywords', "No cuenta con keywords") 
+    if keywords == "":
+        return "No cuenta con keywords"
+    return keywords
 
 
 def extract_year(text):
@@ -54,48 +37,6 @@ def extract_author(text):
     author = author_match.group(1).strip() if author_match else "Autor no encontrado"
     return author
 
-
-def extract_keywords(text):
-    """
-    Extracts the keywords from the text. The keywords are assumed to appear after the word 'Keywords' or 'Palabras clave',
-    potentially spanning multiple lines.
-    
-    :param text: The full text extracted from the PDF article.
-    :return: A string containing the keywords.
-    """
-    # Search for "Keywords" or "Palabras clave" (supports both English and Spanish)
-    keywords_start = re.search(r'\b(?:Keywords|Palabras clave)\b[:\s]*', text, re.IGNORECASE)
-    
-    if not keywords_start:
-        return "Keywords not found."
-    
-    # Start reading after the "Keywords" label
-    start_index = keywords_start.end()
-    
-    # Get the text starting from the location of the keywords
-    keywords_section = text[start_index:]
-    
-    # Split the remaining text into lines
-    lines = keywords_section.splitlines()
-    
-    # Collect lines that are part of the keywords section
-    keywords_lines = []
-    
-    for line in lines:
-        # Clean the line
-        cleaned_line = line.strip()
-        
-        # Stop if we hit an empty line or a new section heading
-        if not cleaned_line or re.match(r'\b(?:Introduction|Background|Resumen|1\.|I\.)\b', cleaned_line, re.IGNORECASE):
-            break
-        
-        # Add the current line to the list if it's not empty
-        keywords_lines.append(cleaned_line)
-    
-    # Join all lines to form the full keywords string
-    keywords = " ".join(keywords_lines).strip()
-    
-    return keywords if keywords else "Keywords not found."
 
 def extract_abstract(text):
     # Define the regular expression for detecting the "Abstract" section
@@ -114,7 +55,7 @@ def extract_abstract(text):
     else:
         return text[start_index:].strip()
 
-def extract_info(file):
+def extract_metadata(file):
     reader = PdfReader(file)
     metadata = reader.metadata
-    print(metadata)
+    return metadata
