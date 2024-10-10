@@ -20,6 +20,8 @@
                 <th>Título</th>
                 <th>Año</th>
                 <th>Autor</th>
+                <th>Abstract</th>
+                <th>Keywords</th>
                 <!-- <th>Acciones</th> -->
             </tr>
             {% for item in data %}
@@ -27,6 +29,8 @@
                 <td>{{ item['Título'] }}</td>
                 <td>{{ item['Año'] }}</td>
                 <td>{{ item['Autor'] }}</td>
+                <td>{{ item['Abstract'] }}</td>
+                <td>{{ item['Keywords'] }}</td>
                 <td>
                     <form action="{{ url_for('delete', title_id=item['id']) }}" method="POST" style="display:inline;">
                         <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar este título?');">Eliminar</button>

@@ -19,16 +19,18 @@ def upload():
     for file in uploaded_files:
         # Extraer texto del PDF
         text = string_utils.extract_text_from_pdf(file)
+        string_utils.extract_info(file)
 
         # Extraer el título, el año y el autor del texto usando las funciones separadas
         title = string_utils.extract_title(text)
         year = string_utils.extract_year(text)
         author = string_utils.extract_author(text)
         abstract = string_utils.extract_abstract(text)
+        keywords = string_utils.extract_keywords(text)
 
         # # Agregar el título, el año y el autor a la lista de datos extraídos con un identificador único
         title_id = len(extracted_data_list) + 1
-        extracted_data_list.append({'id': title_id, 'Título': title, 'Año': year, 'Autor': author})
+        extracted_data_list.append({'id': title_id, 'Título': title, 'Año': year, 'Autor': author, 'Abstract': abstract, 'Keywords': keywords})
 
     return redirect(url_for('index'))
 
