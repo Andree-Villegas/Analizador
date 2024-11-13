@@ -16,20 +16,24 @@ def index():
 def upload():
     uploaded_files = request.files.getlist("file")
 
+    list = []
     for file in uploaded_files:
         # Extraer texto del PDF
         text = string_utils.extract_text_from_pdf(file)
 
         # Extraer el título, el año y el autor del texto usando las funciones separadas
-        title = string_utils.extract_title(file)
+        title = string_utils.extract_content(file, 'Title')
+        keywords = string_utils.extract_content(file, 'Keywords')
         year = string_utils.extract_year(text)
-        author = string_utils.extract_author(text)
+        list.append(string_utils.extract_content(file, 'doi'))
+        # author = string_utils.extract_content(text, '/Author')
         # abstract = string_utils.extract_abstract(text)
-        keywords = string_utils.extract_keywords(file)
 
         # # Agregar el título, el año y el autor a la lista de datos extraídos con un identificador único
         title_id = len(extracted_data_list) + 1
-        extracted_data_list.append({'id': title_id, 'Título': title, 'Año': year, 'Autor': author, 'Keywords': keywords})
+        extracted_data_list.append({'id': title_id, 'Título': title, 'Año': year, 'Keywords': keywords})
+    for item in list:
+        print(list)
 
     return redirect(url_for('index'))
 
