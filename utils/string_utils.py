@@ -14,7 +14,7 @@ def extract_text_from_pdf(file):
 def get_by_key(file, metadata, key):
     keywords = metadata.get(f'/{key}', "") 
     error_response = f"No cuenta con {key}"
-    if keywords is "":
+    if keywords == "":
         if key != "doi":
             return error_response
         else:
@@ -54,7 +54,11 @@ def extract_year(text):
     return year
 
 
+# TODO: crear un resultado vacio
 def return_empty_result() -> dict:
     return {
-        'Title': '',
+        'title': '',
+        'year': '',
+        'author': '',
+        'keywords': '',
     }
