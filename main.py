@@ -8,11 +8,11 @@ from io import BytesIO
 app = Flask(__name__)
 
 # Lista global para almacenar los datos extraídos de múltiples PDFs
-extracted_data_list = []
+articles = []
 
 @app.route('/')
 def index():
-    return render_template('index.html', data=extracted_data_list)
+    return render_template('index.html', data=articles)
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -34,8 +34,8 @@ def upload():
             else:
                 contenido = data['message']
                 title = contenido['title'][0]
-                autores = contenido['author']
-                autores = [author.get('given', '') for author in autores]
+                autores = contenido.get('author', [{}])
+                autores = [author.get('given', 'No cuenta con autores') for author in autores]
                 year = contenido['published']['date-parts'][0][0]
                 cantidad_referencias = contenido['references-count']
                 type = contenido['type']
@@ -44,26 +44,35 @@ def upload():
                 print(title)
                 print(year)
                 print(autores)
-                print(cantidad_referencias)
-                print(doi)
+                print(keywords)
                 print(type)
                 print(revista)
-                print(keywords)
-                content = {'title': title, 'year':year, 'author': ", ".join(autores), 'keywords': keywords}
+                print(doi)
+                print(cantidad_referencias)
+                content = {
+                    'title': title,
+                    'year':year,
+                    'author': ", ".join(autores),
+                    'keywords': keywords,
+                    'type': type,
+                    'revista': revista,
+                    'doi': doi,
+                    'cantidad_referencias': cantidad_referencias
+                }
         # author = string_utils.extract_content(text, '/Author')
         # abstract = string_utils.extract_abstract(text)
 
         # # Agregar el título, el año y el autor a la lista de datos extraídos con un identificador único
-        extracted_data_list.append(content)
+        articles.append(content)
 
     return redirect(url_for('index'))
 
 @app.route('/export', methods=['POST'])
 def export():
-    global extracted_data_list
+    global articles
     
     # Crear un DataFrame con los datos extraídos
-    df = pd.DataFrame(extracted_data_list)
+    df = pd.DataFrame(articles)
 
     # Guardar el DataFrame en un buffer en memoria como un archivo Excel
     output = BytesIO()
