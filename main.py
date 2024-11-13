@@ -25,15 +25,16 @@ def upload():
         title = string_utils.extract_content(file, 'Title')
         keywords = string_utils.extract_content(file, 'Keywords')
         year = string_utils.extract_year(text)
-        list.append(string_utils.extract_content(file, 'doi'))
+        print(string_utils.extract_content(file, 'doi'))
         # author = string_utils.extract_content(text, '/Author')
         # abstract = string_utils.extract_abstract(text)
 
         # # Agregar el título, el año y el autor a la lista de datos extraídos con un identificador único
         title_id = len(extracted_data_list) + 1
         extracted_data_list.append({'id': title_id, 'Título': title, 'Año': year, 'Keywords': keywords})
-    for item in list:
-        print(list)
+
+    # for item in list:
+    #     print(item)
 
     return redirect(url_for('index'))
 

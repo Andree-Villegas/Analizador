@@ -13,23 +13,37 @@ def extract_text_from_pdf(file):
 
 def extract_content(file, key):
     metadata = extract_metadata(file)
-    keywords = metadata.get(f'/{key}', f"No cuenta con {key}") 
-    if keywords == "":
-        if key is not "doi":
-            return f"No cuenta con {key}"
+    keywords = metadata.get(f'/{key}', "") 
+    error_response = f"No cuenta con {key}"
+    if keywords is "":
+        if key != "doi":
+            return error_response
         else:
-            contenido = extract_text_from_pdf(file)
             # logica para obtener el doi mediante regex 
+            contenido = extract_text_from_pdf(file)
             doi_pattern = r'(?:doi:\s*|digital\s+object\s+identifier\s*|https?://(?:dx\.)?doi\.org/)?(10\.\d{4,9}/[-._;()/:A-Za-z0-9]+)'
     
             # Buscar el primer DOI que coincida en el texto
             match = re.search(doi_pattern, contenido, flags=re.IGNORECASE)
             
             # Si hay coincidencia, devolver el DOI encontrado
+            # return match.group(1) if match else error_response
             if match:
                 return match.group(1)
             else:
-                return f"No cuenta con {key}"
+                # tratando de obtener el doi mediante el contenido de subject
+                doi_pattern2 = r'10\.\d{4,9}/[-._;()/:A-Za-z0-9]+'
+                subject = metadata.get('/Subject', "")
+
+                if subject == "":
+                    return error_response
+
+                match2 = re.search(doi_pattern2, subject)
+                if match2:
+                    return match2.group(0) 
+                else:
+                    # print(metadata)
+                    return error_response
 
     return keywords
 
@@ -68,5 +82,4 @@ def extract_year(text):
 def extract_metadata(file):
     reader = PdfReader(file)
     metadata = reader.metadata
-    print(metadata)
     return metadata
