@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template, send_file, redirect, url_for
+from utils import metadata
 import pandas as pd
 from utils import string_utils
+from utils import http_utils
 from io import BytesIO
 
 app = Flask(__name__)
@@ -16,22 +18,26 @@ def index():
 def upload():
     uploaded_files = request.files.getlist("file")
 
-    list = []
     for file in uploaded_files:
         # Extraer texto del PDF
-        text = string_utils.extract_text_from_pdf(file)
+        data = metadata.get_metadata_by_file(file)
+        doi = string_utils.get_by_key(file, data, 'doi')
 
-        # Extraer el título, el año y el autor del texto usando las funciones separadas
-        title = string_utils.extract_content(file, 'Title')
-        keywords = string_utils.extract_content(file, 'Keywords')
-        year = string_utils.extract_year(text)
-        print(string_utils.extract_content(file, 'doi'))
+        if doi == "":
+            content = string_utils.return_empty_result
+        else:
+            data = metadata.get_metadata_by_doi(doi)
+            title = data['message']['title'][0]
+            print(title)
+            print(doi)
+            content = {'Título': title }
         # author = string_utils.extract_content(text, '/Author')
         # abstract = string_utils.extract_abstract(text)
 
         # # Agregar el título, el año y el autor a la lista de datos extraídos con un identificador único
         title_id = len(extracted_data_list) + 1
-        extracted_data_list.append({'id': title_id, 'Título': title, 'Año': year, 'Keywords': keywords})
+        content['id'] = title_id
+        extracted_data_list.append(content)
 
     # for item in list:
     #     print(item)

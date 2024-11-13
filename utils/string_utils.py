@@ -1,6 +1,6 @@
 import re
-from PyPDF2 import PdfReader
 import pdfplumber
+from utils.metadata import get_metadata_by_file
 
 
 def extract_text_from_pdf(file):
@@ -11,8 +11,7 @@ def extract_text_from_pdf(file):
     return text
 
 
-def extract_content(file, key):
-    metadata = extract_metadata(file)
+def get_by_key(file, metadata, key):
     keywords = metadata.get(f'/{key}', "") 
     error_response = f"No cuenta con {key}"
     if keywords is "":
@@ -55,31 +54,7 @@ def extract_year(text):
     return year
 
 
-# def extract_author(text):
-#     # Extraer el nombre del autor/autores antes de palabras clave como "para optar e" o similares
-#     author_match = re.search(r'Autor(?:es)?:\s*(.*?)(?=\n|para optar el|$)', text, re.DOTALL | re.IGNORECASE)
-#     author = author_match.group(1).strip() if author_match else "Autor no encontrado"
-#     return author
-
-
-# def extract_abstract(text):
-#     # Define the regular expression for detecting the "Abstract" section
-#     abstract_start = re.search(r'\bAbstract\b[:\s]*', text, re.IGNORECASE)
-    
-#     if not abstract_start:
-#         return "Abstract no encontrado"
-    
-#     start_index = abstract_start.end()
-    
-#     abstract_end = re.search(r'\b(?:Introduction|Background|Keywords|1\.|I\.)\b', text[start_index:], re.IGNORECASE)
-    
-#     if abstract_end:
-#         end_index = start_index + abstract_end.start()
-#         return text[start_index:end_index].strip()
-#     else:
-#         return text[start_index:].strip()
-
-def extract_metadata(file):
-    reader = PdfReader(file)
-    metadata = reader.metadata
-    return metadata
+def return_empty_result() -> dict:
+    return {
+        'Title': '',
+    }
